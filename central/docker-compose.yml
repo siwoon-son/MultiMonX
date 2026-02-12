@@ -1,5 +1,8 @@
 # MultiMonX Central - Prometheus + Alertmanager + Grafana
 # Usage: docker compose up -d
+#
+# 설정: .env 파일에서 포트, 비밀번호 등 시스템 설정 관리
+#   cp .env.example .env  # 최초 1회
 
 services:
   prometheus:
@@ -7,7 +10,7 @@ services:
     container_name: multimonx-prometheus
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/rules:/etc/prometheus/rules:ro
@@ -15,7 +18,7 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
-      - "--storage.tsdb.retention.time=15d"
+      - "--storage.tsdb.retention.time=${PROMETHEUS_RETENTION_TIME:-15d}"
       - "--web.enable-lifecycle"
     networks:
       - multimonx
@@ -25,7 +28,7 @@ services:
     container_name: multimonx-alertmanager
     restart: unless-stopped
     ports:
-      - "9093:9093"
+      - "${ALERTMANAGER_PORT:-9093}:9093"
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - alertmanager_data:/alertmanager
@@ -40,12 +43,12 @@ services:
     container_name: multimonx-grafana
     restart: unless-stopped
     ports:
-      - "3100:3000"
+      - "${GRAFANA_PORT:-3000}:3000"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=${GF_USERS_ALLOW_SIGN_UP:-false}
+      - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL:-http://localhost:3000}
       - GF_INSTALL_PLUGINS=
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
     volumes:

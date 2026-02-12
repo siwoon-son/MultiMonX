@@ -2,6 +2,9 @@
 # Use with base agent: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 # Requires: NVIDIA driver + nvidia-container-toolkit on host
 # Note: NVIDIA 이미지는 amd64 전용. Linux 서버에서 사용 권장; macOS에서는 platform으로 에뮬 가능.
+#
+# 포트 지정: .env 파일에 DCGM_EXPORTER_PORT 설정
+#   기본값: 9400
 
 services:
   dcgm_exporter:
@@ -9,7 +12,7 @@ services:
     container_name: multimonx-dcgm-exporter
     restart: unless-stopped
     ports:
-      - "9400:9400"
+      - "${DCGM_EXPORTER_PORT:-9400}:9400"
     deploy:
       resources:
         reservations:

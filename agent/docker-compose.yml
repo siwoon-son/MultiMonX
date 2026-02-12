@@ -4,6 +4,9 @@
 #
 # Linux(amd64) + macOS(Intel/Apple Silicon) 공통 실행:
 #   platform: linux/amd64 사용. Apple Silicon에서는 에뮬레이션으로 동작.
+#
+# 포트 지정: .env 파일에 NODE_EXPORTER_PORT, SMARTCTL_EXPORTER_PORT 설정
+#   기본값: 9100, 9633
 
 services:
   node_exporter:
@@ -11,7 +14,7 @@ services:
     container_name: multimonx-node-exporter
     restart: unless-stopped
     ports:
-      - "9100:9100"
+      - "${NODE_EXPORTER_PORT:-9100}:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -29,7 +32,7 @@ services:
     container_name: multimonx-smartctl-exporter
     restart: unless-stopped
     ports:
-      - "9633:9633"
+      - "${SMARTCTL_EXPORTER_PORT:-9633}:9633"
     privileged: true
     volumes:
       - /run/udev:/run/udev:ro

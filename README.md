@@ -38,19 +38,27 @@ Prometheus + Grafana + Exporter 구조를 Docker Compose로 쉽게 배포할 수
 
 ```bash
 cd central
+# 최초 1회: 설정 파일 준비 (.env, prometheus.yml, alertmanager.yml)
+cp .env.example .env
+cp prometheus/prometheus.yml.example prometheus/prometheus.yml
+cp alertmanager/alertmanager.yml.example alertmanager/alertmanager.yml
+
 docker compose up -d
 ```
 
-| 서비스      | URL                     |
+| 서비스      | URL (기본값, .env에서 변경 가능) |
 |------------|--------------------------|
 | Prometheus | http://localhost:9090    |
 | Alertmanager | http://localhost:9093  |
-| Grafana    | http://localhost:3000 (admin / admin) |
+| Grafana    | http://localhost:3000 (admin / admin, .env에서 비밀번호 변경 권장) |
 
 ### 2. Agent 실행 (모니터링할 각 서버에서)
 
 ```bash
 cd agent
+# 포트 변경이 필요한 경우: .env 파일 생성 및 수정
+# cp .env.example .env  # 여러 서버에서 다른 포트 사용 시
+
 docker compose up -d
 ```
 

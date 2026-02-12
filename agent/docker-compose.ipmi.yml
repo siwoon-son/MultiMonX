@@ -1,24 +1,34 @@
 # MultiMonX Agent - IPMI (BMC) add-on
 # Use with base agent: docker compose -f docker-compose.yml -f docker-compose.ipmi.yml up -d
-# Requires: ipmitool on host; container may need privileged or host network for IPMI access
+# Requires: FreeIPMI/ipmitool on host; container uses host network for local IPMI access
 # platform: linux/amd64 → macOS(ARM/Intel) + Linux 동일 compose로 실행
+#
+# 포트 지정 방법:
+#   1. .env 파일 생성: echo "IPMI_EXPORTER_PORT=9291" > .env
+#   2. 또는 환경 변수: IPMI_EXPORTER_PORT=9291 docker compose -f ... up -d
+#   3. 또는 compose override: docker-compose.override.yml 에서 command 덮어쓰기
+#   기본값: 9290
+#
+# 로컬 IPMI: config 없이 실행. 원격 타겟/인증이 필요하면 ipmi-config.yml.example 참고 후
+#   ipmi-config.yml 로 저장하고 아래 volumes 주석 해제.
 
 services:
   ipmi_exporter:
-    image: prometheus-community/ipmi-exporter:latest
+    image: prometheuscommunity/ipmi-exporter:latest
     container_name: multimonx-ipmi-exporter
     restart: unless-stopped
-    ports:
-      - "9290:9290"
-    # IPMI typically needs host network or privileged access to hardware
+    # host 네트워크: 로컬 BMC 접근용. 포트는 환경 변수로 지정 가능 (기본: 9290)
     network_mode: host
-    # Alternative: run with privileged and pass device if your setup allows
-    # privileged: true
+    # 포트 지정: .env 파일에 IPMI_EXPORTER_PORT=9291 설정 또는 환경 변수로 전달
+    # docker compose는 command 배열에서 환경 변수 치환을 지원하지 않으므로,
+    # shell을 통해 환경 변수를 읽어 command에 전달
+    entrypoint: ["/bin/sh", "-c"]
     command:
-      - "--config.file=/etc/ipmi_exporter/config.yml"
-    # Mount custom config if you have one; otherwise exporter uses default
+      - "exec ipmi_exporter --web.listen-address=:$${IPMI_EXPORTER_PORT:-9290}"
+    # 로컬 메트릭은 config 파일 없이 수집 가능. 원격/인증 필요 시 config 마운트:
     # volumes:
     #   - ./ipmi-config.yml:/etc/ipmi_exporter/config.yml:ro
-    # For host network, no need to attach to agent network
-    # networks:
-    #   - agent
+    # command:
+    #   - |
+    #     PORT=$${IPMI_EXPORTER_PORT:-9290}
+    #     exec /bin/ipmi_exporter --web.listen-address=:$$PORT --config.file=/etc/ipmi_exporter/config.yml

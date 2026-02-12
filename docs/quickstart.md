@@ -18,8 +18,12 @@ cp prometheus/prometheus.yml.example prometheus/prometheus.yml
 # Alertmanager: Discord/Email 웹후크 등 (알림 사용 시)
 cp alertmanager/alertmanager.yml.example alertmanager/alertmanager.yml
 
-# 환경 변수 (선택, Grafana 비밀번호 등)
+# 환경 변수: 포트, 비밀번호, 보관 기간 등 시스템 설정
 cp .env.example .env
+# 필요 시 .env 파일 편집:
+#   - PROMETHEUS_PORT, ALERTMANAGER_PORT, GRAFANA_PORT (포트 변경)
+#   - GF_SECURITY_ADMIN_PASSWORD (Grafana 비밀번호 변경 권장)
+#   - PROMETHEUS_RETENTION_TIME (데이터 보관 기간)
 ```
 
 이후 각 파일에서 URL, 비밀번호, targets 등을 환경에 맞게 수정합니다.
