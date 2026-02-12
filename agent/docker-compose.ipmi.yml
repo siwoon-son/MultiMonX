@@ -6,7 +6,6 @@
 services:
   ipmi_exporter:
     image: prometheus-community/ipmi-exporter:latest
-    platform: linux/amd64
     container_name: multimonx-ipmi-exporter
     restart: unless-stopped
     ports:

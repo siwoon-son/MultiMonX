@@ -11,19 +11,19 @@ Prometheus + Grafana + Exporter 구조를 Docker Compose로 쉽게 배포할 수
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                        Agent 서버들 (모니터링 대상)                        │
+│                        Agent 서버들 (모니터링 대상)                          │
 ├─────────────────────────────────────────────────────────────────────────┤
 │  node_exporter (:9100)  │  dcgm_exporter (:9400)  │  smartctl (:9633)   │
-│  ipmi_exporter (:9290, optional)                                         │
+│  ipmi_exporter (:9290, optional)                                        │
 └───────────────────────────────┬─────────────────────────────────────────┘
                                 │  HTTP GET /metrics (Pull)
                                 ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    Central Monitoring Server (1대)                        │
+│                    Central Monitoring Server (1대)                       │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  Prometheus (:9090)  →  scrape 15s, rule 평가, TSDB 저장                  │
-│  Alertmanager (:9093) → 알림 라우팅, Discord/Email 등                     │
-│  Grafana (:3000)     → Prometheus 데이터소스, 대시보드 자동 프로비저닝     │
+│  Prometheus (:9090)  →  scrape 15s, rule 평가, TSDB 저장                   │
+│  Alertmanager (:9093) → 알림 라우팅, Discord/Email 등                       │
+│  Grafana (:3000)     → Prometheus 데이터소스, 대시보드 자동 프로비저닝           │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 

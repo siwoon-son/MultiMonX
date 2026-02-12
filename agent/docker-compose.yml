@@ -8,7 +8,6 @@
 services:
   node_exporter:
     image: prom/node-exporter:v1.6.1
-    platform: linux/amd64
     container_name: multimonx-node-exporter
     restart: unless-stopped
     ports:
@@ -27,7 +26,6 @@ services:
 
   smartctl_exporter:
     image: prometheuscommunity/smartctl-exporter:latest
-    platform: linux/amd64
     container_name: multimonx-smartctl-exporter
     restart: unless-stopped
     ports:
