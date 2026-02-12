@@ -1,0 +1,46 @@
+# MultiMonX Agent - Node + Disk (smartctl) exporters
+# Run on each server to be monitored. Central Prometheus will pull /metrics.
+# Usage: docker compose up -d
+#
+# Linux(amd64) + macOS(Intel/Apple Silicon) 공통 실행:
+#   platform: linux/amd64 사용. Apple Silicon에서는 에뮬레이션으로 동작.
+
+services:
+  node_exporter:
+    image: prom/node-exporter:v1.6.1
+    platform: linux/amd64
+    container_name: multimonx-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    networks:
+      - agent
+
+  smartctl_exporter:
+    image: prometheuscommunity/smartctl-exporter:latest
+    platform: linux/amd64
+    container_name: multimonx-smartctl-exporter
+    restart: unless-stopped
+    ports:
+      - "9633:9633"
+    privileged: true
+    volumes:
+      - /run/udev:/run/udev:ro
+      - /dev:/dev:ro
+    command:
+      - "--smartctl.path=/usr/sbin/smartctl"
+    networks:
+      - agent
+
+networks:
+  agent:
+    driver: bridge

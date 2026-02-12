@@ -1,0 +1,42 @@
+# MultiMonX - Node (CPU, Memory, Disk) Alert Rules
+# Ref: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
+
+groups:
+  - name: node-alerts
+    interval: 30s
+    rules:
+      - alert: NodeDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node {{ $labels.instance }} is down"
+          description: "{{ $labels.job }} target {{ $labels.instance }} has been unreachable for more than 1 minute."
+
+      - alert: CPUUsageHigh
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 90% (current: {{ $value | printf \"%.1f\" }}%) for more than 1 minute."
+
+      - alert: MemoryHigh
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 90% for more than 1 minute."
+
+      - alert: DiskUsageHigh
+        expr: (1 - (node_filesystem_avail_bytes{mountpoint=~"/|/var|/home"} / node_filesystem_size_bytes{mountpoint=~"/|/var|/home"})) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk usage on {{ $labels.instance }}"
+          description: "Disk usage on {{ $labels.mountpoint }} is above 90% for more than 5 minutes."

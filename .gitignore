@@ -1,0 +1,86 @@
+# MultiMonX .gitignore
+
+# ---- 설정/비밀 (공개하지 않을 파일) ----
+# Prometheus: 실제 타겟/alias가 들어간 운영용 설정
+central/prometheus/prometheus.yml
+# Alertmanager: 웹후크 URL, 이메일 비밀번호 등이 들어간 운영용 설정
+central/alertmanager/alertmanager.yml
+# 환경 변수 (API 키, 웹후크 URL 등)
+central/.env
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ---- OS ----
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+
+# ---- IDE / Editor ----
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-*
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+env/
+
+# ---- Node (Grafana 플러그인 개발 등) ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+.pnp.*
+
+# ---- Docker / Compose ----
+*.log
+docker-compose.override.yml
+docker-compose.override.yaml
+.docker/
+
+# ---- Grafana (로컬 데이터, 플러그인) ----
+central/grafana/data/
+*.db
+
+# ---- 기타 ----
+*.bak
+*.tmp
+.cache/
+
+# 이미 Git에 추적 중인 파일을 무시하려면:
+#   git rm --cached central/prometheus/prometheus.yml
+#   git rm --cached central/alertmanager/alertmanager.yml
+#   git rm --cached central/.env
+# 후 커밋하면 이후부터는 무시됩니다.

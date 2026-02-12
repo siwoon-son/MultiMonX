@@ -1,0 +1,25 @@
+# MultiMonX Agent - IPMI (BMC) add-on
+# Use with base agent: docker compose -f docker-compose.yml -f docker-compose.ipmi.yml up -d
+# Requires: ipmitool on host; container may need privileged or host network for IPMI access
+# platform: linux/amd64 → macOS(ARM/Intel) + Linux 동일 compose로 실행
+
+services:
+  ipmi_exporter:
+    image: prometheus-community/ipmi-exporter:latest
+    platform: linux/amd64
+    container_name: multimonx-ipmi-exporter
+    restart: unless-stopped
+    ports:
+      - "9290:9290"
+    # IPMI typically needs host network or privileged access to hardware
+    network_mode: host
+    # Alternative: run with privileged and pass device if your setup allows
+    # privileged: true
+    command:
+      - "--config.file=/etc/ipmi_exporter/config.yml"
+    # Mount custom config if you have one; otherwise exporter uses default
+    # volumes:
+    #   - ./ipmi-config.yml:/etc/ipmi_exporter/config.yml:ro
+    # For host network, no need to attach to agent network
+    # networks:
+    #   - agent

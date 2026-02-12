@@ -1,0 +1,24 @@
+# MultiMonX - GPU (DCGM Exporter) Alert Rules
+# Requires dcgm-exporter on GPU nodes
+
+groups:
+  - name: gpu-alerts
+    interval: 30s
+    rules:
+      - alert: GPUUtilHigh
+        expr: DCGM_FI_DEV_GPU_UTIL > 90
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High GPU utilization on {{ $labels.instance }}"
+          description: "GPU {{ $labels.gpu }} utilization is above 90% for more than 1 minute."
+
+      - alert: GPUTempHigh
+        expr: DCGM_FI_DEV_GPU_TEMP > 85
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High GPU temperature on {{ $labels.instance }}"
+          description: "GPU {{ $labels.gpu }} temperature is above 85°C for more than 1 minute."

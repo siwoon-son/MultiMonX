@@ -1,0 +1,97 @@
+# MultiMonX Prometheus Configuration (템플릿)
+# 사용: 이 파일을 prometheus.yml 로 복사한 뒤 targets 등을 수정하세요.
+#   cp prometheus.yml.example prometheus.yml
+#
+# Pull model: Prometheus scrapes exporters at /metrics
+#
+# 동적 타겟 확장: file_sd_configs 사용 시 아래처럼 교체 가능
+#   - job_name: "nodes"
+#     file_sd_configs:
+#       - files: ["/etc/prometheus/nodes.json"]
+#         refresh_interval: 1m
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Alertmanager
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Alert rules
+rule_files:
+  - /etc/prometheus/rules/node-alerts.yml
+  - /etc/prometheus/rules/gpu-alerts.yml
+
+scrape_configs:
+  # Node metrics (node_exporter)
+  # Legend에 표시할 이름: relabel로 alias 설정. 기본은 instance(호스트명)와 동일, 아래에서 덮어쓰기 가능.
+  - job_name: "nodes"
+    static_configs:
+      - targets:
+          # Add your agent nodes here, e.g.:
+          # - "192.168.0.11:9100"
+          # - "192.168.0.12:9100"
+          []
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: "([^:]+)(:[0-9]+)?"
+        replacement: "${1}"
+      # alias 기본값 = instance (Grafana 범례에 표시). 아래에서 regex로 덮어써서 별칭 지정 가능.
+      - source_labels: [instance]
+        target_label: alias
+        regex: "(.*)"
+        replacement: "${1}"
+      # 예: hostname/IP를 읽기 쉬운 이름으로 변경 (필요 시 주석 해제 후 수정)
+      # - source_labels: [alias]
+      #   target_label: alias
+      #   regex: "host\\.docker\\.internal"
+      #   replacement: "My-Mac"
+      # - source_labels: [alias]
+      #   target_label: alias
+      #   regex: "192\\.168\\.0\\.11"
+      #   replacement: "web-server-1"
+
+  # GPU metrics (dcgm-exporter, optional)
+  - job_name: "gpu"
+    static_configs:
+      - targets:
+          # GPU nodes: "host:9400"
+          []
+    scrape_interval: 30s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: "([^:]+)(:[0-9]+)?"
+        replacement: "${1}"
+      - source_labels: [instance]
+        target_label: alias
+        regex: "(.*)"
+        replacement: "${1}"
+
+  # Disk health (smartctl_exporter, optional)
+  - job_name: "smartctl"
+    static_configs:
+      - targets:
+          # Nodes with smartctl_exporter: "host:9633"
+          []
+    scrape_interval: 60s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: "([^:]+)(:[0-9]+)?"
+        replacement: "${1}"
+      - source_labels: [instance]
+        target_label: alias
+        regex: "(.*)"
+        replacement: "${1}"
+
+  # Prometheus self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets:
+          - localhost:9090

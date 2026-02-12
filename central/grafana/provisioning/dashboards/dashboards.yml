@@ -1,0 +1,16 @@
+# MultiMonX - Grafana Dashboard Provisioning
+# Dashboards under path are loaded automatically.
+
+apiVersion: 1
+
+providers:
+  - name: 'MultiMonX'
+    orgId: 1
+    folder: 'MultiMonX'
+    folderUid: 'multimonx'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

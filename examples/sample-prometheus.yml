@@ -1,0 +1,18 @@
+# MultiMonX - Sample Prometheus scrape_configs
+# Copy the relevant 'targets' into central/prometheus/prometheus.yml
+
+scrape_configs:
+  - job_name: "nodes"
+    static_configs:
+      - targets:
+          - "192.168.0.11:9100"
+          - "192.168.0.12:9100"
+  - job_name: "gpu"
+    static_configs:
+      - targets:
+          - "192.168.0.11:9400"
+  - job_name: "smartctl"
+    static_configs:
+      - targets:
+          - "192.168.0.11:9633"
+          - "192.168.0.12:9633"

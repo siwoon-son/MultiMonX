@@ -1,0 +1,22 @@
+# MultiMonX Agent - GPU (NVIDIA DCGM) add-on
+# Use with base agent: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+# Requires: NVIDIA driver + nvidia-container-toolkit on host
+# Note: NVIDIA 이미지는 amd64 전용. Linux 서버에서 사용 권장; macOS에서는 platform으로 에뮬 가능.
+
+services:
+  dcgm_exporter:
+    image: nvidia/dcgm-exporter:3.1.7-3.1.4-ubuntu20.04
+    platform: linux/amd64
+    container_name: multimonx-dcgm-exporter
+    restart: unless-stopped
+    ports:
+      - "9400:9400"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - agent

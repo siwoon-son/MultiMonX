@@ -1,0 +1,15 @@
+# MultiMonX - Grafana Datasource Provisioning
+# Prometheus is auto-registered; no manual setup required.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: "15s"
