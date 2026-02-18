@@ -34,6 +34,16 @@ Prometheus + Grafana + Exporter 구조를 Docker Compose로 쉽게 배포할 수
 
 ## 5분 Quickstart
 
+### 0. (최초 1회) 공유 네트워크 생성
+
+Central과 Agent는 **같은 Docker 네트워크(multimonx)** 를 사용합니다. Central만 단독, Agent만 단독, 또는 둘 다 실행하는 모든 경우에 동일하게 적용됩니다.
+
+```bash
+docker network create multimonx
+```
+
+이미 `multimonx` 네트워크가 있으면 위 명령은 무시해도 됩니다. 다른 프로젝트에서 만든 네트워크와 이름이 겹치지 않도록 한 번만 생성하면 됩니다.
+
 ### 1. Central 실행 (모니터링 서버 1대)
 
 ```bash
@@ -53,6 +63,8 @@ docker compose up -d
 | Grafana    | http://localhost:3000 (admin / admin, .env에서 비밀번호 변경 권장) |
 
 ### 2. Agent 실행 (모니터링할 각 서버에서)
+
+같은 서버에서 Central과 Agent를 함께 올릴 때도, 다른 서버에서 Agent만 올릴 때도 위 0단계에서 `multimonx` 네트워크가 있어야 합니다. (해당 호스트에서 최초 1회 `docker network create multimonx` 실행)
 
 ```bash
 cd agent
@@ -80,11 +92,12 @@ docker compose up -d
 
 ## 서버 추가 방법
 
-1. 새 서버에 이 저장소의 `agent/`만 복사한 뒤 `docker compose up -d` 실행
-2. Central 서버의 `central/prometheus/prometheus.yml`에 해당 호스트:포트를 `targets`에 추가
+1. 새 서버에서 `docker network create multimonx` (최초 1회), 이 저장소의 `agent/`만 복사한 뒤 `docker compose up -d` 실행
+2. Central 서버의 `central/prometheus/prometheus.yml`에 해당 타겟을 `targets`에 추가  
+   (같은 Docker 네트워크면 컨테이너 이름 예: `multimonx-node-exporter:9100`, 다른 호스트면 `호스트IP:포트`)
 3. `curl -X POST http://CENTRAL_IP:9090/-/reload` 또는 Prometheus 컨테이너 재시작
 
-예시는 [examples/sample-prometheus.yml](examples/sample-prometheus.yml)를 참고하세요.
+예시는 [examples/sample-prometheus.yml](examples/sample-prometheus.yml)와 [docs/quickstart.md](docs/quickstart.md)를 참고하세요.
 
 ---
 

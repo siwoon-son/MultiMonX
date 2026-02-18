@@ -32,7 +32,9 @@ scrape_configs:
   - job_name: "nodes"
     static_configs:
       - targets:
-          # Add your agent nodes here, e.g.:
+          # 같은 Docker 네트워크(multimonx)에 있는 경우: 컨테이너 이름 사용
+          # - "multimonx-node-exporter:9100"
+          # 다른 호스트에 있는 경우: Agent 서버 IP + 포트 사용
           # - "192.168.0.11:9100"
           # - "192.168.0.12:9100"
           []
@@ -60,7 +62,8 @@ scrape_configs:
   - job_name: "gpu"
     static_configs:
       - targets:
-          # GPU nodes: "host:9400"
+          # 같은 네트워크: "multimonx-dcgm-exporter:9400"
+          # 다른 호스트: "192.168.0.11:9400"
           []
     scrape_interval: 30s
     relabel_configs:
@@ -77,7 +80,26 @@ scrape_configs:
   - job_name: "smartctl"
     static_configs:
       - targets:
-          # Nodes with smartctl_exporter: "host:9633"
+          # 같은 네트워크: "multimonx-smartctl-exporter:9633"
+          # 다른 호스트: "192.168.0.11:9633"
+          []
+    scrape_interval: 60s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: "([^:]+)(:[0-9]+)?"
+        replacement: "${1}"
+      - source_labels: [instance]
+        target_label: alias
+        regex: "(.*)"
+        replacement: "${1}"
+
+  # IPMI/BMC (ipmi_exporter, optional). 포트는 .env에서 지정 (기본: 9290)
+  - job_name: "ipmi"
+    static_configs:
+      - targets:
+          # 같은 네트워크: "multimonx-ipmi-exporter:9290"
+          # 다른 호스트: "192.168.0.11:9290"
           []
     scrape_interval: 60s
     relabel_configs:

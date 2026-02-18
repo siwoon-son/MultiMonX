@@ -5,7 +5,19 @@
 - Docker 및 Docker Compose 설치
 - (GPU 사용 시) NVIDIA 드라이버 + nvidia-container-toolkit
 
-## 0. (최초 1회) 설정 파일 준비 (템플릿 → 실제 파일)
+## 0. (최초 1회) 공유 네트워크 및 설정 파일 준비
+
+### 0-1. Docker 네트워크 생성
+
+Central과 Agent는 **동일한 Docker 네트워크(multimonx)** 를 사용합니다. Central만 단독 실행, Agent만 단독 실행, 또는 둘 다 실행하는 모든 경우에 공통입니다.
+
+```bash
+docker network create multimonx
+```
+
+이미 존재하면 생략해도 됩니다.
+
+### 0-2. 설정 파일 준비 (템플릿 → 실제 파일)
 
 각 디렉터리에서 `.example` 템플릿을 복사해 사용하세요.
 
@@ -28,7 +40,7 @@ cp .env.example .env
 
 이후 각 파일에서 URL, 비밀번호, targets 등을 환경에 맞게 수정합니다.
 
-## 1. Central 서버 실행
+## 1. Central 서버 실행 (0-1에서 multimonx 네트워크 생성 후)
 
 ```bash
 cd central
@@ -41,7 +53,7 @@ docker compose up -d
 
 ## 2. Agent 서버에서 exporter 실행
 
-모니터링할 **각 서버**에서:
+모니터링할 **각 서버**에서(해당 호스트에서 최초 1회 `docker network create multimonx` 실행 후):
 
 ```bash
 cd agent
@@ -52,7 +64,23 @@ docker compose up -d
 
 ## 3. Central에 타겟 등록
 
-Central 서버의 `central/prometheus/prometheus.yml`(또는 위 0단계에서 복사한 파일)을 수정해, 해당 Agent 서버 IP를 넣습니다.
+Central 서버의 `central/prometheus/prometheus.yml`(또는 위 0-2에서 복사한 파일)을 수정해, Agent 타겟을 넣습니다.
+
+**Central과 Agent가 같은 Docker 네트워크(multimonx)에 있는 경우** (같은 호스트에서 둘 다 실행한 경우 등)에는 **컨테이너 이름 + 컨테이너 포트**를 사용합니다:
+
+```yaml
+scrape_configs:
+  - job_name: "nodes"
+    static_configs:
+      - targets:
+          - "multimonx-node-exporter:9100"
+  - job_name: "smartctl"
+    static_configs:
+      - targets:
+          - "multimonx-smartctl-exporter:9633"
+```
+
+**Central과 Agent가 서로 다른 호스트에 있는 경우**에는 **Agent 서버 IP + 호스트에 매핑된 포트**를 사용합니다:
 
 ```yaml
 scrape_configs:

@@ -2,6 +2,16 @@
 
 각 모니터링 대상 서버에서 **exporter만** 실행합니다. Central 서버의 Prometheus가 이 endpoint를 주기적으로 Pull 합니다.
 
+## 네트워크 (최초 1회)
+
+Agent는 Central과 **같은 Docker 네트워크(multimonx)** 를 사용합니다. Central만 단독, Agent만 단독, 또는 둘 다 실행하는 모든 경우에 동일합니다.
+
+**최초 1회** 해당 호스트에서 다음을 실행하세요. (이미 있으면 생략)
+
+```bash
+docker network create multimonx
+```
+
 ## Linux / macOS 공통 실행
 
 동일한 `docker-compose`로 **Linux(amd64)** 와 **macOS(Intel 및 Apple Silicon)** 에서 모두 실행할 수 있습니다.
@@ -39,9 +49,9 @@ docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 docker compose -f docker-compose.yml -f docker-compose.ipmi.yml up -d
 ```
 
-- **ipmi_exporter**: 9290 (기본값, host 네트워크) — 전원, 온도, 팬 등
+- **ipmi_exporter**: 9290 (기본값) — 전원, 온도, 팬 등
 
-로컬 BMC 메트릭은 **설정 파일 없이** 수집됩니다. IPMI는 `network_mode: host`로 동작하므로, Central의 Prometheus에서는 **해당 호스트 IP:포트**로 scrape 하도록 설정하세요.
+로컬 BMC 메트릭은 **설정 파일 없이** 수집됩니다. Central과 같은 네트워크(multimonx)에 있으면 `multimonx-ipmi-exporter:9290`으로 scrape 가능하고, 다른 호스트면 **해당 호스트 IP:포트**로 설정하세요.
 
 ## 포트 지정 (여러 서버에서 다른 포트 사용 시)
 

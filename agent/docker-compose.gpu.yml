@@ -21,4 +21,8 @@ services:
               count: all
               capabilities: [gpu]
     networks:
-      - agent
+      - multimonx
+
+networks:
+  multimonx:
+    external: true

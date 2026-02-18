@@ -54,8 +54,12 @@ MultiMonX는 **Prometheus 표준 Pull 모델**을 따릅니다.
 4. **Alerts**: Alertmanager가 라우팅·그룹핑 후 receiver(Discord, Email 등)로 전송
 5. **Visualization**: Grafana가 Prometheus를 데이터소스로 쿼리해 대시보드 표시
 
+## 네트워크
+
+Central과 Agent는 **동일한 Docker 네트워크(multimonx)** 를 공유합니다. `docker network create multimonx`를 최초 1회 실행한 뒤, Central만 단독, Agent만 단독, 또는 둘 다 실행하는 모든 조합에서 같은 네트워크를 사용합니다.
+
 ## 확장
 
-- **서버 추가**: Agent를 새 서버에 설치한 뒤, Central의 `prometheus.yml`의 `static_configs.targets`에 `호스트:포트` 추가
+- **서버 추가**: Agent를 새 서버에 설치한 뒤, Central의 `prometheus.yml`의 `static_configs.targets`에 `호스트:포트` 추가 (같은 네트워크면 컨테이너 이름 예: `multimonx-node-exporter:9100` 사용 가능)
 - **동적 타겟**: 필요 시 `file_sd_configs`로 파일 기반 타겟 목록 전환 가능(구성만 변경)
 - **인증**: Prometheus/Grafana 앞단에 reverse proxy 두고 Basic Auth 또는 HTTPS 적용 가능(문서 참고)
